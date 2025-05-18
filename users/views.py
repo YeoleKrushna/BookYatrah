@@ -21,9 +21,9 @@ def login_view(request):
             login(request, user)
             profile = user.profile
             if profile.phone and profile.city:
-                return redirect('user_profile')
+                return redirect('users:user_profile')
             else:
-                return redirect('profile')
+                return redirect('users:profile')
         else:
             messages.error(request, 'Invalid username or password')
 
@@ -32,13 +32,13 @@ def login_view(request):
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('user_profile')
+        return redirect('users:user_profile')
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Account created successfully! Please log in.')
-            return redirect('login')
+            return redirect('users:login')
     else:
         form = UserRegisterForm()
     return render(request, 'users/register.html', {'form': form})
@@ -53,7 +53,7 @@ def profile_view(request):
             u_form.save()
             p_form.save()
             messages.success(request, 'Profile updated.')
-            return redirect('user_profile')
+            return redirect('users:user_profile')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -73,4 +73,4 @@ from django.contrib.auth import logout
 def logout_view(request):
     logout(request)
     messages.info(request, 'You have been logged out.')
-    return redirect('login')
+    return redirect('users:login')

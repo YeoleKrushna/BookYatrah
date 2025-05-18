@@ -1,20 +1,36 @@
+{% extends 'home/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-    <link rel="stylesheet" href="{% static 'users/style.css' %}">
-</head>
-<body>
-    <div class="container fade-in">
-        <h2 class="title">Create an Account 📝</h2>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn">Sign Up</button>
-        </form>
-        <p class="link-text">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
-    </div>
-</body>
-</html>
+
+{% block title %}Register - BookYatrah{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="users-login-container fade-in">
+    <h2 class="title">Create an Account</h2>
+    <form method="POST" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+        <div class="form-group">
+            {{ field.label_tag }}
+
+            {{ field }}
+
+            {% if field.help_text %}
+            <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+
+            {% for error in field.errors %}
+            <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn">Sign Up</button>
+    </form>
+    <p class="link-text">Already have an account? <a href="{% url 'users:login' %}">Login here</a></p>
+</div>
+{% endblock %}

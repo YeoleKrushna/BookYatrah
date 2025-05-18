@@ -6,23 +6,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}BookYatrah{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'home/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+
   {% block extra_css %}{% endblock %}
 </head>
 <body>
 
 <nav class="navbar">
   <div class="container">
-    <a href="{% url 'home:index' %}" class="logo">Book<span>Yatrah</span></a>
+    <div class="logo-container">
+      <a href="{% url 'home:index' %}" class="logo">BookYatrah</a>
+    </div>
     <ul class="nav-links">
       <li><a href="{% url 'home:index' %}">Home</a></li>
-      <li><a href="{% url 'users:login' %}">Join Us</a></li>
       <li><a href="#">Browse Books</a></li>
       <li><a href="#">About</a></li>
       <li><a href="#">Contact</a></li>
+
+      {% if user.is_authenticated %}
+        <li>
+          <a href="{% url 'users:user_profile' %}">
+            <i class="fa fa-user-circle"></i> My Account
+          </a>
+        </li>
+      {% else %}
+        <li><a href="{% url 'users:login' %}">Login</a></li>
+        <li><a href="{% url 'users:register' %}">Sign Up</a></li>
+      {% endif %}
     </ul>
   </div>
 </nav>
-
 
 
   <main>

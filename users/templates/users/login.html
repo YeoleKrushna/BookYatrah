@@ -1,31 +1,37 @@
+{% extends 'home/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'users/style.css' %}">
-</head>
-<body>
-    <div class="container fade-in">
-        <h2 class="title">Welcome Back 👋</h2>
-        <form method="POST" novalidate>
-            {% csrf_token %}
 
-            <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">Username:</label>
-                {{ form.username }}
-            </div>
+{% block title %}Login - BookYatrah{% endblock %}
 
-            <div class="form-group">
-                <label for="{{ form.password.id_for_label }}">Password:</label>
-                {{ form.password }}
-            </div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/style.css' %}">
+{% endblock %}
 
-            <button type="submit" class="btn">Login</button>
-        </form>
+{% block content %}
+<div class="users-login-container fade-in">
+  <h2 class="title">Login</h2>
+  <form method="POST" novalidate>
+      {% csrf_token %}
 
-        <p class="link-text">Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
-    </div>
-</body>
-</html>
+      <div class="form-group">
+          {{ form.username.label_tag }}
+          {{ form.username }}
+          {% for error in form.username.errors %}
+            <div class="error-message">{{ error }}</div>
+          {% endfor %}
+      </div>
+
+      <div class="form-group">
+          {{ form.password.label_tag }}
+          {{ form.password }}
+          {% for error in form.password.errors %}
+            <div class="error-message">{{ error }}</div>
+          {% endfor %}
+      </div>
+
+      <button type="submit" class="btn">Login</button>
+  </form>
+
+  <p class="link-text">Don't have an account? <a href="{% url 'users:register' %}">Register here</a></p>
+</div>
+{% endblock %}

@@ -1,54 +1,109 @@
+{% extends 'home/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Your Profile</title>
-    <link rel="stylesheet" href="{% static 'users/style.css' %}">
-</head>
-<body>
-    <div class="container fade-in">
-        {% if messages %}
-          <ul class="messages">
-            {% for message in messages %}
-              <li class="message {{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
 
-        <h2 class="title">Your Profile 👤</h2>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
+{% block title %}Edit Profile - BookYatrah{% endblock %}
 
-            <div class="form-section">
-                <h3>Account Info</h3>
-                <div class="form-grid">
-                    {{ u_form.first_name.label_tag }} {{ u_form.first_name }}
-                    {{ u_form.last_name.label_tag }} {{ u_form.last_name }}
-                    {{ u_form.email.label_tag }} {{ u_form.email }}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="users-login-container fade-in">
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h2 class="title">Edit Your Profile 👤</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-section">
+            <h3>Account Info</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    {{ u_form.first_name.label_tag }}
+                    {{ u_form.first_name }}
+                    {% if u_form.first_name.errors %}
+                    <div class="error-message">{{ u_form.first_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ u_form.last_name.label_tag }}
+                    {{ u_form.last_name }}
+                    {% if u_form.last_name.errors %}
+                    <div class="error-message">{{ u_form.last_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ u_form.email.label_tag }}
+                    {{ u_form.email }}
+                    {% if u_form.email.errors %}
+                    <div class="error-message">{{ u_form.email.errors.0 }}</div>
+                    {% endif %}
                 </div>
             </div>
+        </div>
 
-            <div class="form-section">
-                <h3>Profile Info</h3>
-                <div class="form-grid">
-                    {{ p_form.phone.label_tag }} {{ p_form.phone }}
-                    {{ p_form.city.label_tag }} {{ p_form.city }}
-                    {{ p_form.pincode.label_tag }} {{ p_form.pincode }}
-                    {{ p_form.profile_pic.label_tag }} {{ p_form.profile_pic }}
+        <div class="form-section">
+            <h3>Profile Info</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    {{ p_form.phone.label_tag }}
+                    {{ p_form.phone }}
+                    {% if p_form.phone.errors %}
+                    <div class="error-message">{{ p_form.phone.errors.0 }}</div>
+                    {% endif %}
                 </div>
-
-                <div class="genre-section">
-                    {{ p_form.preferred_genres.label_tag }}
-                    <div class="genre-columns">
-                        {{ p_form.preferred_genres }}
+                <div class="form-group" style="max-width: 100%;">
+                    {{ p_form.city.label_tag }}
+                    <div class="form-control-wrapper">
+                        {{ p_form.city }}
                     </div>
+                    {% if p_form.city.errors %}
+                    <div class="error-message">{{ p_form.city.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ p_form.pincode.label_tag }}
+                    {{ p_form.pincode }}
+                    {% if p_form.pincode.errors %}
+                    <div class="error-message">{{ p_form.pincode.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group" style="max-width: 100%;">
+                    {{ p_form.profile_pic.label_tag }}
+                    <div class="form-control-wrapper" style="overflow-wrap: break-word;">
+                        {{ p_form.profile_pic }}
+                    </div>
+                    {% if p_form.profile_pic.errors %}
+                    <div class="error-message">{{ p_form.profile_pic.errors.0 }}</div>
+                    {% endif %}
                 </div>
             </div>
 
-            <button type="submit" class="btn">Save Changes</button>
-        </form>
-    </div>
-</body>
+            <div class="form-group genre-section">
+                {{ p_form.preferred_genres.label_tag }}
+                <div class="genre-columns">
+                    {% for checkbox in p_form.preferred_genres %}
+                        <label>
+                            {{ checkbox.tag }}
+                            {{ checkbox.choice_label }}
+                        </label>
+                    {% endfor %}
+                </div>
 
-</html>
+                {% if p_form.preferred_genres.errors %}
+                <div class="error-message">{{ p_form.preferred_genres.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+</div>
+{% endblock %}
