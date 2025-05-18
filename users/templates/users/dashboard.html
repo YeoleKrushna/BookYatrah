@@ -1,0 +1,102 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - BookYatrah{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/style.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<h1>Welcome, {{ request.user.first_name }}!</h1>
+
+<!-- Profile Section -->
+<section class="profile-section">
+  <h2>Your Profile</h2>
+
+  {% if profile.profile_pic %}
+    <div class="profile-pic-wrapper" style="margin-bottom: 20px;">
+      <img src="{{ profile.profile_pic.url }}" alt="Profile Picture" width="150" style="border-radius:12px;" />
+    </div>
+  {% endif %}
+
+  <p><strong>Name:</strong> {{ request.user.first_name }} {{ request.user.last_name }}</p>
+  <p><strong>Email:</strong> {{ request.user.email }}</p>
+  <p><strong>Phone:</strong> {{ profile.phone|default:"Not set" }}</p>
+  <p><strong>City:</strong> {{ profile.city|default:"Not set" }}</p>
+  <p><strong>Pincode:</strong> {{ profile.pincode|default:"Not set" }}</p>
+
+  <p><strong>Preferred Genres:</strong>
+    {% if profile.preferred_genres.exists %}
+      {% for genre in profile.preferred_genres.all %}
+        {{ genre.name }}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    {% else %}
+      No genres selected
+    {% endif %}
+  </p>
+
+  <div class="profile-actions" style="margin-top: 20px;">
+    <a href="{% url 'users:profile' %}" class="btn">Edit Profile</a>
+    <a href="{% url 'users:logout' %}" class="btn logout-btn" style="margin-left: 10px;">Logout</a>
+  </div>
+</section>
+
+<hr style="margin: 40px 0;" />
+
+<!-- My Books Section -->
+<section class="my-books-section">
+  <h2>My Books</h2>
+
+  <!-- Messages -->
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="message {{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <!-- Upload New Book Button -->
+  <div class="profile-actions" style="margin-top: 20px; margin-bottom: 20px;">
+    <a href="{% url 'users:upload_book' %}" class="btn">Upload New Book</a>
+  </div>
+
+  <!-- Uploaded Books List -->
+<!-- Uploaded Books List -->
+{% if user_books %}
+  <ul class="book-list" style="list-style: none; padding-left: 0;">
+    {% for book in user_books %}
+      {% if forloop.first %}
+        <!-- debugging aid, ensures this loop only happens once -->
+        {# Only one loop, rendering {{ user_books|length }} books #}
+      {% endif %}
+      <li class="book-item"
+          style="display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+        <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image"
+             style="width: 80px; height: auto; border-radius: 6px; margin-right: 15px;" />
+        <div class="book-info" style="flex-grow: 1;">
+          <strong>{{ book.title }}</strong> by {{ book.author }}<br />
+          <small>Condition: {{ book.condition }}</small><br />
+          <small>Location: {{ book.location }}</small>
+        </div>
+        <div class="profile-actions" style="margin-top: 20px;">
+          <a href="{% url 'users:edit_book' book.id %}" class="btn">Edit</a>
+          <form method="POST" action="{% url 'users:delete_book' book.id %}" style="display:inline;" 
+                onsubmit="return confirm('Are you sure you want to delete this book?');">
+            {% csrf_token %}
+            <button type="submit" class="btn logout-btn">Delete</button>
+          </form>
+
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>You have not uploaded any books yet.</p>
+{% endif %}
+
+</section>
+
+{% endblock %}

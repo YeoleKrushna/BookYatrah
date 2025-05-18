@@ -1,17 +1,21 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
-from django.contrib import messages
-from .forms import LoginForm
+from .forms import (
+    LoginForm,
+    UserRegisterForm,
+    UserUpdateForm,
+    ProfileUpdateForm,
+    BookUploadForm
+)
+from .models import Book
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('user_profile')
+        return redirect('users:dashboard')
 
-    form = LoginForm() 
-
+    form = LoginForm()
     if request.method == 'POST':
         form = LoginForm(request.POST)
         username = request.POST.get('username')
@@ -21,7 +25,7 @@ def login_view(request):
             login(request, user)
             profile = user.profile
             if profile.phone and profile.city:
-                return redirect('users:user_profile')
+                return redirect('users:dashboard')
             else:
                 return redirect('users:profile')
         else:
@@ -29,10 +33,9 @@ def login_view(request):
 
     return render(request, 'users/login.html', {'form': form})
 
-
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('users:user_profile')
+        return redirect('users:dashboard')
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
@@ -45,7 +48,6 @@ def register_view(request):
 
 @login_required
 def profile_view(request):
-    # Profile update form
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)
         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -53,7 +55,7 @@ def profile_view(request):
             u_form.save()
             p_form.save()
             messages.success(request, 'Profile updated.')
-            return redirect('users:user_profile')
+            return redirect('users:dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -62,15 +64,85 @@ def profile_view(request):
     return render(request, 'users/profile.html', {'u_form': u_form, 'p_form': p_form})
 
 @login_required
-def user_profile_view(request):
-    # Show user profile info page
-    profile = request.user.profile
-    return render(request, 'users/user_profile.html', {'profile': profile})
-
-from django.contrib.auth import logout
-
-@login_required
 def logout_view(request):
     logout(request)
     messages.info(request, 'You have been logged out.')
     return redirect('users:login')
+
+@login_required
+def dashboard_view(request):
+    user = request.user
+    profile = user.profile
+
+    # Profile forms (if you want to keep profile update here)
+    u_form = UserUpdateForm(instance=user)
+    p_form = ProfileUpdateForm(instance=profile)
+
+    user_books = Book.objects.filter(owner=user).order_by('-uploaded_at')
+
+    context = {
+        'profile': profile,
+        'u_form': u_form,
+        'p_form': p_form,
+        'user_books': user_books,
+    }
+
+    return render(request, 'users/dashboard.html', context)
+
+@login_required
+def upload_book_view(request):
+    if request.method == 'POST':
+        book_form = BookUploadForm(request.POST, request.FILES)
+        if book_form.is_valid():
+            book = book_form.save(commit=False)  # Only once here
+            book.owner = request.user
+            profile = request.user.profile
+            book.location = f"{profile.city}, {profile.pincode}"
+            book.save()
+            book_form.save_m2m()  # Only this is needed to save many-to-many fields
+            messages.success(request, f'Book "{book.title}" uploaded successfully.')
+            return redirect('users:dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        book_form = BookUploadForm()
+
+    return render(request, 'users/upload_book.html', {'book_form': book_form})
+
+
+
+# ✅ EDIT BOOK VIEW
+@login_required
+def edit_book_view(request, pk):
+    book = get_object_or_404(Book, pk=pk, owner=request.user)
+
+    if request.method == 'POST':
+        form = BookUploadForm(request.POST, request.FILES, instance=book)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Book updated successfully.")
+            return redirect('users:dashboard')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = BookUploadForm(instance=book)
+
+    return render(request, 'users/edit_book.html', {
+        'form': form,
+        'book': book
+    })
+
+
+# ✅ DELETE BOOK VIEW
+@login_required
+def delete_book_view(request, pk):
+    book = get_object_or_404(Book, pk=pk, owner=request.user)
+
+    if request.method == 'POST':
+        book.delete()
+        messages.success(request, "Book deleted successfully.")
+        return redirect('users:dashboard')
+
+    return render(request, 'users/dashboard.html', {
+        'book': book
+    })

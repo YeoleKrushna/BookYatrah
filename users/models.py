@@ -17,3 +17,25 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
+class Book(models.Model):
+    CONDITION_CHOICES = [
+        ('New', 'New'),
+        ('Good', 'Good'),
+        ('Okay', 'Okay'),
+    ]
+
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='books')
+    title = models.CharField(max_length=255)
+    author = models.CharField(max_length=255)
+    language = models.CharField(max_length=100)
+    genres = models.ManyToManyField(Genre, blank=True)
+    condition = models.CharField(max_length=10, choices=CONDITION_CHOICES)
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='book_images/')
+    location = models.CharField(max_length=255)  # autofill from user profile
+    preferred_genres = models.ManyToManyField(Genre, related_name='preferred_books', blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} by {self.author}"

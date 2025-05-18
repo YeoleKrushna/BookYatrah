@@ -1,0 +1,88 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Upload Book - BookYatrah{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="users-login-container fade-in">
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h2 class="title">Upload New Book 📚</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-section">
+
+            <div class="form-group">
+                <label for="{{ book_form.title.id_for_label }}" class="bold-label">Title</label>
+                {{ book_form.title }}
+                {% if book_form.title.errors %}
+                <div class="error-message">{{ book_form.title.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ book_form.author.id_for_label }}" class="bold-label">Author</label>
+                {{ book_form.author }}
+                {% if book_form.author.errors %}
+                <div class="error-message">{{ book_form.author.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ book_form.language.id_for_label }}" class="bold-label">Language</label>
+                {{ book_form.language }}
+                {% if book_form.language.errors %}
+                <div class="error-message">{{ book_form.language.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group genres-two-columns">
+                <label class="bold-label">Genres</label>
+                {{ book_form.genres }}
+                {% if book_form.genres.errors %}
+                <div class="error-message">{{ book_form.genres.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="bold-label">Condition</label>
+                {{ book_form.condition }}
+                {% if book_form.condition.errors %}
+                <div class="error-message">{{ book_form.condition.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ book_form.description.id_for_label }}" class="bold-label">Description</label>
+                {{ book_form.description }}
+                {% if book_form.description.errors %}
+                <div class="error-message">{{ book_form.description.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ book_form.image.id_for_label }}" class="bold-label">Cover Image</label>
+                {{ book_form.image }}
+                {% if book_form.image.errors %}
+                <div class="error-message">{{ book_form.image.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn">Upload Book</button>
+    </form>
+</div>
+{% endblock %}

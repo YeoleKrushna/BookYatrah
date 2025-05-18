@@ -1,0 +1,88 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Edit Book - BookYatrah{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="users-login-container fade-in">
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h2 class="title">Edit Book 📖</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-section">
+
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}" class="bold-label">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                <div class="error-message">{{ form.title.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.author.id_for_label }}" class="bold-label">Author</label>
+                {{ form.author }}
+                {% if form.author.errors %}
+                <div class="error-message">{{ form.author.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.language.id_for_label }}" class="bold-label">Language</label>
+                {{ form.language }}
+                {% if form.language.errors %}
+                <div class="error-message">{{ form.language.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group genres-two-columns">
+                <label class="bold-label">Genres</label>
+                {{ form.genres }}
+                {% if form.genres.errors %}
+                <div class="error-message">{{ form.genres.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="bold-label">Condition</label>
+                {{ form.condition }}
+                {% if form.condition.errors %}
+                <div class="error-message">{{ form.condition.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="bold-label">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <div class="error-message">{{ form.description.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.image.id_for_label }}" class="bold-label">Cover Image</label>
+                {{ form.image }}
+                {% if form.image.errors %}
+                <div class="error-message">{{ form.image.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn">Update Book</button>
+    </form>
+</div>
+{% endblock %}

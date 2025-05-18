@@ -82,3 +82,45 @@ class ProfileUpdateForm(forms.ModelForm):
         if not data or data.count() == 0:
             raise forms.ValidationError("Please select at least one genre.")
         return data
+    
+from .models import Book
+
+class BookUploadForm(forms.ModelForm):
+    genres = forms.ModelMultipleChoiceField(
+        queryset=Genre.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=True
+    )
+    preferred_genres = forms.ModelMultipleChoiceField(
+        queryset=Genre.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    condition = forms.ChoiceField(
+        choices=Book.CONDITION_CHOICES,
+        widget=forms.RadioSelect,
+        required=True
+    )
+    image = forms.ImageField(required=True)
+
+    class Meta:
+        model = Book
+        fields = ['title', 'author', 'language', 'genres', 'condition', 'description', 'image']
+
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if len(title) < 2 or len(title) > 255:
+            raise forms.ValidationError("Title must be between 2 and 255 characters.")
+        return title
+
+    def clean_author(self):
+        author = self.cleaned_data['author']
+        if len(author) < 2 or len(author) > 255:
+            raise forms.ValidationError("Author name must be between 2 and 255 characters.")
+        return author
+
+    def clean_language(self):
+        language = self.cleaned_data['language']
+        if len(language) < 2 or len(language) > 100:
+            raise forms.ValidationError("Language must be between 2 and 100 characters.")
+        return language
