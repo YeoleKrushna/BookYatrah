@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Your Profile</title>
+    <link rel="stylesheet" href="{% static 'users/style.css' %}" />
+</head>
+<body>
+    <div class="container fade-in">
+        <h2>Your Profile 👤</h2>
+        {% if profile.profile_pic %}
+        <p><img src="{{ profile.profile_pic.url }}" alt="Profile Picture" width="150"/></p>
+        {% endif %}
+        <a href="{% url 'profile' %}" class="btn">Edit Profile</a>
+        <a href="{% url 'logout' %}" class="btn logout-btn">Logout</a>
+        <p><strong>Name:</strong> {{ request.user.first_name }} {{ request.user.last_name }}</p>
+        <p><strong>Email:</strong> {{ request.user.email }}</p>
+        <p><strong>Phone:</strong> {{ profile.phone }}</p>
+        <p><strong>City:</strong> {{ profile.city }}</p>
+        <p><strong>Pincode:</strong> {{ profile.pincode }}</p>
+        <p><strong>Preferred Genres:</strong>
+            {% for genre in profile.preferred_genres.all %}
+                {{ genre.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                No genres selected
+            {% endfor %}
+        </p>
+    </div>
+</body>
+</html>

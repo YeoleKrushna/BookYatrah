@@ -1,0 +1,15 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logged Out</title>
+    <link rel="stylesheet" href="{% static 'users/style.css' %}">
+</head>
+<body>
+    <div class="container fade-in">
+        <h2 class="title">You have been logged out 🛑</h2>
+        <a href="{% url 'login' %}" class="btn">Login Again</a>
+    </div>
+</body>
+</html>
