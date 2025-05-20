@@ -43,9 +43,50 @@
   </div>
 </section>
 
+
 <hr style="margin: 40px 0;" />
+<!-- Exchange Request Section -->
+<section class="exchange-requests-section">
+  <h2>Exchange Requests</h2>
+
+  {% if exchange_requests %}
+    <ul class="exchange-requests-list" style="list-style: none; padding-left: 0;">
+      {% for req in exchange_requests %}
+        <li style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+          <p>
+            <strong>
+              <a href="{% url 'users:user_profile' req.requester.id %}" style="text-decoration: none; color: #2c7a7b;">
+                {{ req.requester.get_full_name|default:req.requester.username }}
+              </a>
+            </strong> wants to exchange:
+          </p>
+          <ul>
+            <li><strong>Your book:</strong> {{ req.requested_book.title }}</li>
+            <li><strong>Offered book:</strong>
+              <a href="{% url 'home:book_detail' req.offered_book.id %}" style="text-decoration: none; color: #2b6cb0;">
+                {{ req.offered_book.title }}
+              </a>
+            </li>
+          </ul>
+          <form method="POST" action="{% url 'exchanges:accept_request' req.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Accept</button>
+          </form>
+          <form method="POST" action="{% url 'exchanges:decline_request' req.id %}" style="display:inline; margin-left: 10px;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Decline</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No exchange requests at the moment.</p>
+  {% endif %}
+</section>
+
 
 <!-- My Books Section -->
+<hr style="margin: 40px 0;" />
 <section class="my-books-section">
   <h2>My Books</h2>
 

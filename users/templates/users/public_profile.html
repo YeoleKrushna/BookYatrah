@@ -1,0 +1,63 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }}'s Profile - BookYatrah{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/style.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ profile_user.get_full_name|default:profile_user.username }}'s Profile</h1>
+
+<!-- Profile Info -->
+<section class="profile-section">
+  {% if profile_user.profile.profile_pic %}
+    <div class="profile-pic-wrapper" style="margin-bottom: 20px;">
+      <img src="{{ profile_user.profile.profile_pic.url }}" alt="Profile Picture" width="150" style="border-radius:12px;" />
+    </div>
+  {% endif %}
+
+  <p><strong>Name:</strong> {{ profile_user.first_name }} {{ profile_user.last_name }}</p>
+  <p><strong>City:</strong> {{ profile_user.profile.city|default:"Not set" }}</p>
+  <p><strong>Pincode:</strong> {{ profile_user.profile.pincode|default:"Not set" }}</p>
+
+  <p><strong>Preferred Genres:</strong>
+    {% if profile_user.profile.preferred_genres.exists %}
+      {% for genre in profile_user.profile.preferred_genres.all %}
+        {{ genre.name }}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    {% else %}
+      No genres listed
+    {% endif %}
+  </p>
+</section>
+
+<hr style="margin: 40px 0;" />
+
+<!-- Books Section -->
+<section class="my-books-section">
+  <h2>{{ profile_user.first_name|default:profile_user.username }}'s Books</h2>
+
+  {% if books %}
+    <ul class="book-list" style="list-style: none; padding-left: 0;">
+      {% for book in books %}
+        <li class="book-item"
+            style="display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+          <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image"
+               style="width: 80px; height: auto; border-radius: 6px; margin-right: 15px;" />
+          <div class="book-info" style="flex-grow: 1;">
+            <strong>{{ book.title }}</strong> by {{ book.author }}<br />
+            <small>Condition: {{ book.condition }}</small><br />
+            <small>Location: {{ book.location }}</small>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>This user has not uploaded any books yet.</p>
+  {% endif %}
+</section>
+
+{% endblock %}

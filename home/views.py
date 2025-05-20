@@ -1,4 +1,38 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from users.models import Book, Profile
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 def index(request):
-    return render(request, 'home/index.html')
+    trending_books = Book.objects.all().order_by('-uploaded_at')[:6]
+    latest_books = Book.objects.all().order_by('-uploaded_at')[:6]
+
+    genre_books = []
+    if request.user.is_authenticated:
+        try:
+            user_profile = Profile.objects.get(user=request.user)
+            preferred_genres = user_profile.preferred_genres.all()
+            if preferred_genres.exists():
+                genre_books = Book.objects.filter(
+                    genres__in=preferred_genres
+                ).distinct().exclude(owner=request.user)[:6]
+        except Profile.DoesNotExist:
+            pass
+
+    context = {
+        'trending_books': trending_books,
+        'genre_books': genre_books,
+        'latest_books': latest_books,
+    }
+    return render(request, 'home/index.html', context)
+
+
+# ✅ Book detail view
+def book_detail(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    return render(request, 'home/book_detail.html', {'book': book})
+
+def more_books(request):
+    # You can pass all books or paginated books, etc.
+    books = Book.objects.all()
+    return render(request, 'home/more_books.html', {'books': books})

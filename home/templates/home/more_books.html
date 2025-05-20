@@ -1,0 +1,49 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}All Books - BookYatrah{% endblock %}
+
+{% block content %}
+<section style="padding: 2rem;">
+  <h2>All Books</h2>
+  <div class="book-section" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+    {% for book in books %}
+    <div class="book-card" style="flex-direction: column; padding: 1rem;">
+      <div class="book-image" style="width: 100%; height: 250px;">
+        <img src="{{ book.image.url }}" alt="{{ book.title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+      </div>
+      <div class="book-info" style="margin-top: 1rem; flex-grow: 0;">
+        <h3>{{ book.title }}</h3>
+        <p><strong>Author:</strong> {{ book.author }}</p>
+        <p><strong>Language:</strong> {{ book.language }}</p>
+        <p><strong>Condition:</strong> {{ book.condition }}</p>
+        <p><strong>Location:</strong> {{ book.location }}</p>
+      </div>
+      <div class="btn-group" style="margin-top: 1rem; justify-content: center;">
+        <a href="{% url 'home:book_detail' book.id %}" class="btn btn-secondary">Details</a>
+        <a href="#" class="btn btn-primary">Exchange</a>
+        <button class="btn-love" data-book-id="{{ book.id }}" style="background:none; border:none; cursor:pointer; font-size: 1.5rem; color: #888;">
+          ❤️
+        </button>
+      </div>
+    </div>
+    {% empty %}
+    <p>No books available.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  // Simple JS to toggle love button color on click
+  document.querySelectorAll('.btn-love').forEach(button => {
+    button.addEventListener('click', () => {
+      if (button.style.color === 'red') {
+        button.style.color = '#888';
+      } else {
+        button.style.color = 'red';
+      }
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}{{ book.title }} Details{% endblock %}
+
+{% block content %}
+<main style="padding: 2rem 0;">
+  <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+    <div style="flex: 0 0 250px;">
+      <img src="{{ book.image.url }}" alt="{{ book.title }}" style="width: 100%; height: auto; border-radius: 10px; object-fit: cover;">
+    </div>
+
+    <div style="flex: 1; min-width: 300px;">
+      <h1 style="margin-bottom: 0.5rem;">{{ book.title }}</h1>
+      <p><strong>Author:</strong> {{ book.author }}</p>
+      <p><strong>Language:</strong> {{ book.language }}</p>
+      <p><strong>Condition:</strong> {{ book.condition }}</p>
+      <p><strong>Location:</strong> {{ book.location }}</p>
+
+      {% if book.genres.exists %}
+        <p><strong>Genres:</strong> 
+          {% for genre in book.genres.all %}
+            <span style="background-color: #5bcc7b; padding: 3px 8px; border-radius: 20px; margin-right: 5px; color: white;">{{ genre.name }}</span>
+          {% endfor %}
+        </p>
+      {% endif %}
+
+      {% if book.description %}
+        <p style="margin-top: 1rem;"><strong>Description:</strong><br>{{ book.description }}</p>
+      {% endif %}
+
+      <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+        <a href="#" class="btn btn-primary">Exchange</a>
+        <a href="#" class="btn btn-secondary">Add to Wishlist</a>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

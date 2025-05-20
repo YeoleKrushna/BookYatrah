@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from exchanges.models import ExchangeRequest
 from .forms import (
     LoginForm,
     UserRegisterForm,
@@ -74,20 +75,27 @@ def dashboard_view(request):
     user = request.user
     profile = user.profile
 
-    # Profile forms (if you want to keep profile update here)
     u_form = UserUpdateForm(instance=user)
     p_form = ProfileUpdateForm(instance=profile)
 
     user_books = Book.objects.filter(owner=user).order_by('-uploaded_at')
+
+    # Exchange requests where current user owns the requested book
+    exchange_requests = ExchangeRequest.objects.filter(
+        requested_book__owner=user,
+        status='pending'
+    ).select_related('requester', 'requested_book', 'offered_book').order_by('-timestamp')
 
     context = {
         'profile': profile,
         'u_form': u_form,
         'p_form': p_form,
         'user_books': user_books,
+        'exchange_requests': exchange_requests,
     }
 
     return render(request, 'users/dashboard.html', context)
+
 
 @login_required
 def upload_book_view(request):
@@ -146,3 +154,15 @@ def delete_book_view(request, pk):
     return render(request, 'users/dashboard.html', {
         'book': book
     })
+
+from django.contrib.auth.models import User
+
+@login_required
+def user_profile(request, user_id):
+    user_obj = get_object_or_404(User, id=user_id)
+    books = Book.objects.filter(owner=user_obj).order_by('-uploaded_at')
+    context = {
+        'profile_user': user_obj,
+        'books': books,
+    }
+    return render(request, 'users/public_profile.html', context)

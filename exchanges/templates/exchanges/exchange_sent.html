@@ -1,0 +1,17 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Exchange Request Sent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'exchanges/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="exchange-container">
+    <h2 class="title">Exchange Request Sent!</h2>
+    <p>Your request for "<strong>{{ book.title }}</strong>" has been sent successfully.</p>
+    <p>The book owner will be notified and may respond shortly.</p>
+    <a href="{% url 'home:index' %}" class="btn-primary">← Back to Browse</a>
+</div>
+{% endblock %}

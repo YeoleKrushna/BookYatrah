@@ -1,0 +1,31 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Select a Book to Offer{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'exchanges/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="exchange-container">
+    <h2 class="title">Offer a Book in Exchange</h2>
+    <p>Select one of your books to offer for "{{ book.title }}"</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="book_select">Your Available Books:</label>
+            <select name="offered_book_id" id="book_select" required>
+                <option value="" disabled selected>-- Choose a book --</option>
+                {% for user_book in user_books %}
+                <option value="{{ user_book.id }}">{{ user_book.title }} by {{ user_book.author }}</option>
+                {% empty %}
+                <option disabled>You don’t have any books uploaded yet.</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn-primary">Send Exchange Request</button>
+    </form>
+</div>
+{% endblock %}
