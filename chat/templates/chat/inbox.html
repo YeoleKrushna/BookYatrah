@@ -29,18 +29,22 @@
 
   ul.chat-list li {
     margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   a.chat-link {
-    display: block;
+    flex-grow: 1;
     padding: 1rem 1.25rem;
-    background: #4caf50; /* green */
+    background: #4caf50;
     color: white;
     border-radius: 10px;
     text-decoration: none;
     font-weight: 600;
     box-shadow: 0 3px 6px rgba(76, 175, 80, 0.4);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin-right: 0.5rem;
   }
 
   a.chat-link:hover,
@@ -56,6 +60,24 @@
     font-size: 0.85rem;
     color: #d0f0c0;
     font-weight: 400;
+  }
+
+  .delete-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .delete-button svg {
+    width: 22px;
+    height: 22px;
+    fill: #a00;
+    transition: transform 0.2s;
+  }
+
+  .delete-button:hover svg {
+    transform: scale(1.1);
   }
 
   p.no-chats {
@@ -74,13 +96,22 @@
       {% for exchange in exchanges %}
         <li>
           <a class="chat-link" href="{% url 'chat:chat_room' exchange.id %}">
-          {% if exchange.requester == user %}
-            {{ exchange.requested_book.owner.first_name }} {{ exchange.requested_book.owner.last_name }}
-          {% else %}
-            {{ exchange.requester.first_name }} {{ exchange.requester.last_name }}
-          {% endif %}
-          <small>Book: {{ exchange.requested_book.title }}</small>
+            {% if exchange.requester == user %}
+              {{ exchange.requested_book.owner.first_name }} {{ exchange.requested_book.owner.last_name }}
+            {% else %}
+              {{ exchange.requester.first_name }} {{ exchange.requester.last_name }}
+            {% endif %}
+            <small>Book: {{ exchange.requested_book.title }}</small>
           </a>
+
+          <form method="POST" action="{% url 'chat:delete_chat' exchange.id %}" onsubmit="return confirm('Are you sure you want to close this exchange? This will cancel the chat for both users.')">
+            {% csrf_token %}
+            <button type="submit" class="delete-button" title="Close Chat">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M9 3v1H4v2h1v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3H9zm2 4h2v12h-2V7zm-4 0h2v12H7V7zm8 0h2v12h-2V7z"/>
+              </svg>
+            </button>
+          </form>
         </li>
       {% endfor %}
     </ul>

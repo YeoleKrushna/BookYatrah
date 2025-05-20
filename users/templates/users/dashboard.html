@@ -1,11 +1,12 @@
 {% extends 'home/base.html' %}
 {% load static %}
 
-{% block title %}Dashboard - BookYatrah{% endblock %}
+{% block title %}Select a Book to Offer{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'users/style.css' %}">
 {% endblock %}
+
 
 {% block content %}
 
@@ -81,6 +82,63 @@
     </ul>
   {% else %}
     <p>No exchange requests at the moment.</p>
+  {% endif %}
+</section>
+
+<hr style="margin: 40px 0;" />
+<!-- Ongoing Exchanges Section -->
+<section class="exchange-requests-section">
+  <h2>Ongoing Exchanges</h2>
+
+  {% if ongoing_exchanges %}
+    <ul class="exchange-requests-list" style="list-style: none; padding-left: 0;">
+      {% for exch in ongoing_exchanges %}
+        <li style="border: 1px solid #4caf50; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+          <p class="exchange-text">
+            <strong>
+              {% if exch.requester == request.user %}
+                You requested from 
+                <a href="{% url 'users:user_profile' exch.requested_book.owner.id %}" style="text-decoration: none; color: #2c7a7b;">
+                  {{ exch.requested_book.owner.get_full_name|default:exch.requested_book.owner.username }}
+                </a>
+              {% else %}
+                <a href="{% url 'users:user_profile' exch.requester.id %}" style="text-decoration: none; color: #2c7a7b;">
+                  {{ exch.requester.get_full_name|default:exch.requester.username }}
+                </a> requested from you
+              {% endif %}
+            </strong>
+          </p>
+          <ul class="exchange-text">
+            <li><strong>Your book:</strong> 
+              <a href="{% url 'home:book_detail' exch.requested_book.id %}" style="text-decoration: none; color: #2b6cb0;">
+                {{ exch.requested_book.title }}
+              </a>
+            </li>
+            <li><strong>Offered book:</strong> 
+              <a href="{% url 'home:book_detail' exch.offered_book.id %}" style="text-decoration: none; color: #2b6cb0;">
+                {{ exch.offered_book.title }}
+              </a>
+            </li>
+          </ul>
+          <p class="exchange-text">Status: 
+            {% if exch.status == 'pending' %}
+              <span style="color: orange;">Pending</span>
+            {% elif exch.status == 'accepted' %}
+              <span style="color: green;">Accepted</span>
+              <form action="{% url 'chat:chat_room' exch.id %}" method="get" style="display:inline; margin-left: 10px;">
+                <button type="submit" class="btn btn-primary ">Go to Chat</button>
+              </form>
+            {% elif exch.status == 'cancelled' %}
+              <span style="color: red;">Cancelled</span>
+            {% else %}
+              {{ exch.status|capfirst }}
+            {% endif %}
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No ongoing exchanges currently.</p>
   {% endif %}
 </section>
 

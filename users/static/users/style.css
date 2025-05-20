@@ -9,7 +9,10 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    
 }
+
+
 
 .users-login-container {
     max-width: 600px;
@@ -399,17 +402,6 @@ body {
   flex: 1;
 }
 
-/* ----------------- New CSS for dashboard page (your dashboard.html) ----------------- */
-
-/* Override body display for dashboard page - center to block */
-body {
-    display: block;
-    min-height: auto;
-    padding: 2rem;
-    background: white;
-    color: #333;
-}
-
 /* Container for dashboard content */
 .users-login-container {
     max-width: 600px;
@@ -666,4 +658,14 @@ hr {
 
 .exchange-container .btn:hover {
     background-color: #2c6b39;
+}
+
+.exchange-text {
+  font-size: 1.1rem; /* slightly larger text */
+  line-height: 1.4;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
 }

@@ -33,6 +33,20 @@ def book_detail(request, book_id):
     return render(request, 'home/book_detail.html', {'book': book})
 
 def more_books(request):
-    # You can pass all books or paginated books, etc.
-    books = Book.objects.all()
-    return render(request, 'home/more_books.html', {'books': books})
+    book_type = request.GET.get('type', 'all')
+
+    if book_type == 'latest':
+        books = Book.objects.order_by('-uploaded_at')[:10]
+        heading = "Latest Uploaded Books"
+    elif book_type == 'preferred' and request.user.is_authenticated:
+        preferred_genres = request.user.profile.preferred_genres.all()
+        books = Book.objects.filter(genres__in=preferred_genres).distinct()
+        heading = "Books Based on Your Preferred Genres"
+    else:
+        books = Book.objects.all()
+        heading = "All Books"
+
+    return render(request, 'home/more_books.html', {
+        'books': books,
+        'heading': heading,
+    })

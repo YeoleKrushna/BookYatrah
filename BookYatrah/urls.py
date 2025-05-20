@@ -9,6 +9,8 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('exchanges/', include('exchanges.urls')),
     path('chat/', include('chat.urls', namespace='chat')),
+    path('notifications/', include('notifications.urls')),
+
 
 ]
 

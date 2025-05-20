@@ -70,6 +70,8 @@ def logout_view(request):
     messages.info(request, 'You have been logged out.')
     return redirect('users:login')
 
+from django.db.models import Q
+
 @login_required
 def dashboard_view(request):
     user = request.user
@@ -80,10 +82,16 @@ def dashboard_view(request):
 
     user_books = Book.objects.filter(owner=user).order_by('-uploaded_at')
 
-    # Exchange requests where current user owns the requested book
+    # Incoming exchange requests (pending) for user's books
     exchange_requests = ExchangeRequest.objects.filter(
         requested_book__owner=user,
         status='pending'
+    ).select_related('requester', 'requested_book', 'offered_book').order_by('-timestamp')
+
+    # Ongoing exchanges where user is requester or owner and status is pending or accepted
+    ongoing_exchanges = ExchangeRequest.objects.filter(
+        Q(requester=user) | Q(requested_book__owner=user),
+        status__in=['pending', 'accepted']
     ).select_related('requester', 'requested_book', 'offered_book').order_by('-timestamp')
 
     context = {
@@ -91,10 +99,12 @@ def dashboard_view(request):
         'u_form': u_form,
         'p_form': p_form,
         'user_books': user_books,
-        'exchange_requests': exchange_requests,
+        'exchange_requests': exchange_requests,  # Incoming pending requests
+        'ongoing_exchanges': ongoing_exchanges,  # All ongoing exchanges (pending + accepted)
     }
 
     return render(request, 'users/dashboard.html', context)
+
 
 
 @login_required
