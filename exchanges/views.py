@@ -42,11 +42,12 @@ def exchange_sent(request, book_id):
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 
+from django.urls import reverse
+
 @login_required
 def accept_request(request, request_id):
     exchange_request = get_object_or_404(ExchangeRequest, id=request_id, status='pending')
 
-    # Only the owner of the requested book can accept
     if exchange_request.requested_book.owner != request.user:
         return HttpResponseForbidden("You cannot accept this request.")
 
@@ -54,10 +55,12 @@ def accept_request(request, request_id):
         exchange_request.status = 'accepted'
         exchange_request.save()
         messages.success(request, f"Exchange request accepted.")
-        return redirect('users:dashboard')
 
-    # Optionally: render a confirmation page before accept
+        # 🔁 Redirect to chat room
+        return redirect(reverse('chat:chat_room', args=[exchange_request.id]))
+
     return redirect('users:dashboard')
+
 
 @login_required
 def decline_request(request, request_id):

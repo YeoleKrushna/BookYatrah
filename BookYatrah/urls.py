@@ -8,6 +8,8 @@ urlpatterns = [
     path('', include('home.urls')),
     path('users/', include('users.urls')),
     path('exchanges/', include('exchanges.urls')),
+    path('chat/', include('chat.urls', namespace='chat')),
+
 ]
 
 if settings.DEBUG:

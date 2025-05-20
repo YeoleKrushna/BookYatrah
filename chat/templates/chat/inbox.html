@@ -1,0 +1,91 @@
+{% extends 'home/base.html' %}
+
+{% block title %}Inbox | BookYatrah{% endblock %}
+
+{% block content %}
+<style>
+  .exchange-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem 2rem;
+    background-color: #f9fdf7;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,128,0,0.15);
+  }
+
+  .exchange-container .title {
+    text-align: center;
+    color: #2a5d34;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+  }
+
+  ul.chat-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  ul.chat-list li {
+    margin-bottom: 1.25rem;
+  }
+
+  a.chat-link {
+    display: block;
+    padding: 1rem 1.25rem;
+    background: #4caf50; /* green */
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 3px 6px rgba(76, 175, 80, 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  a.chat-link:hover,
+  a.chat-link:focus {
+    background-color: #388e3c;
+    box-shadow: 0 5px 15px rgba(56, 142, 60, 0.6);
+    outline: none;
+  }
+
+  a.chat-link small {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: #d0f0c0;
+    font-weight: 400;
+  }
+
+  p.no-chats {
+    text-align: center;
+    font-style: italic;
+    color: #7a7a7a;
+    margin-top: 2rem;
+  }
+</style>
+
+<div class="exchange-container">
+  <h2 class="title">Your Chats</h2>
+
+  {% if exchanges %}
+    <ul class="chat-list">
+      {% for exchange in exchanges %}
+        <li>
+          <a class="chat-link" href="{% url 'chat:chat_room' exchange.id %}">
+          {% if exchange.requester == user %}
+            {{ exchange.requested_book.owner.first_name }} {{ exchange.requested_book.owner.last_name }}
+          {% else %}
+            {{ exchange.requester.first_name }} {{ exchange.requester.last_name }}
+          {% endif %}
+          <small>Book: {{ exchange.requested_book.title }}</small>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="no-chats">You have no active chats yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

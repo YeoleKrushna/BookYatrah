@@ -30,6 +30,12 @@
             <i class="fa fa-user-circle"></i> My Account
           </a>
         </li>
+        <li>
+          <a href="{% url 'chat:inbox' %}">
+            <i class="fa fa-comments"></i> Chats
+          </a>
+        </li>
+
       {% else %}
         <li><a href="{% url 'users:login' %}">Login</a></li>
         <li><a href="{% url 'users:register' %}">Sign Up</a></li>

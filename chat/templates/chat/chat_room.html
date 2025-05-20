@@ -1,0 +1,185 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+<div class="chat-room-container">
+  <h2>Chat with 
+    {% if exchange.requester == user %}
+      {{ exchange.requested_book.owner.first_name }} {{ exchange.requested_book.owner.last_name }}
+    {% else %}
+      {{ exchange.requester.first_name }} {{ exchange.requester.last_name }}
+    {% endif %}
+  </h2>
+
+<div id="chat-messages" class="chat-messages" style="overflow-y:auto; max-height:400px;">
+  {% for msg in messages %}
+    <div class="message {% if msg.sender == user %}sent{% else %}received{% endif %}">
+      <div class="avatar">
+        <img src="{{ msg.sender.profile.profile_pic.url }}" alt="Avatar" />
+      </div>
+      <div class="message-content">
+        <p>{{ msg.message }}</p>
+        <span class="timestamp">{{ msg.timestamp|localtime|date:"H:i" }}</span>
+      </div>
+    </div>
+  {% empty %}
+    <p>No messages yet. Say hi!</p>
+  {% endfor %}
+</div>
+
+  <form id="chat-form" method="POST" action="{% url 'chat:chat_room' exchange.id %}">
+    {% csrf_token %}
+    <input type="text" name="message" id="message-input" placeholder="Type a message" autocomplete="off" required />
+    <button type="submit">Send</button>
+  </form>
+</div>
+
+
+<script>
+  function scrollToBottom() {
+    var chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  window.onload = scrollToBottom;
+</script>
+
+<style>
+  .chat-room-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+  }
+  .chat-messages {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+  }
+  .message {
+    display: flex;
+    margin-bottom: 1rem;
+  }
+  .message.sent {
+    justify-content: flex-end;
+  }
+  .message.received {
+    justify-content: flex-start;
+  }
+  .avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .message-content {
+    max-width: 70%;
+    background: #e1ffc7;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    position: relative;
+  }
+  .message.sent .message-content {
+    background: #dcf8c6;
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+  .timestamp {
+    display: block;
+    font-size: 0.7rem;
+    color: #666;
+    margin-top: 0.2rem;
+    text-align: right;
+  }
+  form#chat-form {
+    display: flex;
+    gap: 0.5rem;
+  }
+  form#chat-form input[type="text"] {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+  }
+  form#chat-form button {
+    padding: 0 1rem;
+    border-radius: 20px;
+    background-color: #369a52;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+  form#chat-form button:hover {
+    background-color: #2d8645;
+  }
+</style>
+
+{% endblock %}
+
+
+<script>
+  const exchangeId = "{{ exchange.id }}";
+  const userId = "{{ user.id }}";
+  const chatSocket = new WebSocket(
+    'ws://' + window.location.host + '/ws/chat/' + exchangeId + '/'
+  );
+
+  const messagesContainer = document.getElementById('chat-messages');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('message-input');
+
+  chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    const isSender = data.sender_id == userId;
+
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+    msgDiv.classList.add(isSender ? 'sent' : 'received');
+
+    const avatarDiv = document.createElement('div');
+    avatarDiv.classList.add('avatar');
+
+    const img = document.createElement('img');
+    // For simplicity, no avatar in WS message, you can extend to send avatar URLs
+    img.src = isSender
+      ? "{{ user.profile.profile_pic.url }}"
+      : "/static/images/default-avatar.png";  // default avatar for other user
+
+    avatarDiv.appendChild(img);
+
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('message-content');
+
+    const p = document.createElement('p');
+    p.textContent = data.message;
+
+    const span = document.createElement('span');
+    span.classList.add('timestamp');
+    const now = new Date();
+    span.textContent = now.getHours() + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    contentDiv.appendChild(p);
+    contentDiv.appendChild(span);
+
+    msgDiv.appendChild(avatarDiv);
+    msgDiv.appendChild(contentDiv);
+
+    messagesContainer.appendChild(msgDiv);
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  };
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (message.length === 0) return;
+
+    chatSocket.send(JSON.stringify({
+      'message': message
+    }));
+
+    input.value = '';
+  });
+</script>
