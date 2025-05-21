@@ -50,3 +50,24 @@ def more_books(request):
         'books': books,
         'heading': heading,
     })
+
+
+from django.shortcuts import render
+from users.models import Book
+from django.db.models import Q
+
+def search(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+    if query:
+        results = Book.objects.filter(
+            Q(title__icontains=query) |
+            Q(author__icontains=query) |
+            Q(language__icontains=query) |
+            Q(location__icontains=query) |
+            Q(genres__name__icontains=query) |
+            Q(owner__username__icontains=query) |
+            Q(owner__first_name__icontains=query) |
+            Q(owner__last_name__icontains=query)
+        ).distinct()
+    return render(request, 'home/search_results.html', {'query': query, 'results': results})

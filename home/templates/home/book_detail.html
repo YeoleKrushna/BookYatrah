@@ -30,8 +30,11 @@
       {% endif %}
 
       <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-        <a href="#" class="btn btn-primary">Exchange</a>
-        <a href="#" class="btn btn-secondary">Add to Wishlist</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'exchanges:initiate_exchange' book.id %}" class="btn btn-primary">Exchange</a>
+          {% else %}
+            <a href="{% url 'users:login' %}?next={% url 'exchanges:initiate_exchange' book.id %}" class="btn btn-primary">Exchange</a>
+          {% endif %}
       </div>
     </div>
   </div>

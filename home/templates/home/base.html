@@ -18,42 +18,36 @@
     <div class="logo-container">
       <a href="{% url 'home:index' %}" class="logo">BookYatrah</a>
     </div>
-    <ul class="nav-links">
-      <li><a href="{% url 'home:index' %}">Home</a></li>
-      <li><a href="#browse-books">Browse Books</a></li>
+<ul class="nav-links">
+  <li>
+    <form action="{% url 'home:search' %}" method="get" class="search-form">
+      <input type="text" name="q" placeholder="Search books..." required />
+      <button type="submit"><i class="fa fa-search"></i></button>
+    </form>
+  </li>
+  <li><a href="{% url 'home:index' %}">Home</a></li>
+  <li><a href="#browse-books">Browse Books</a></li>
+  {% if user.is_authenticated %}
+    <li><a href="{% url 'users:dashboard' %}"><i class="fa fa-user-circle"></i> My Account</a></li>
+    <li><a href="{% url 'chat:inbox' %}"><i class="fa fa-comments"></i> Chats</a></li>
+  {% else %}
+    <li><a href="{% url 'users:login' %}">Login</a></li>
+    <li><a href="{% url 'users:register' %}">Sign Up</a></li>
+  {% endif %}
+  {% if user.is_authenticated %}
+    <li class="notification-dropdown">
+      <a href="#" id="notification-icon" aria-haspopup="true" aria-expanded="false" aria-label="Notifications">
+        <i class="fa fa-bell"></i>
+        <span id="notification-count" class="badge" style="display:none;">0</span>
+      </a>
+      <ul class="dropdown-menu" id="notification-list" role="menu" aria-labelledby="notification-icon">
+        <!-- Notifications injected here -->
+        <li class="clear-notifications" id="clear-notifications-btn">Clear All</li>
+      </ul>
+    </li>
+  {% endif %}
+</ul>
 
-      {% if user.is_authenticated %}
-        <li>
-          <a href="{% url 'users:dashboard' %}">
-            <i class="fa fa-user-circle"></i> My Account
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'chat:inbox' %}">
-            <i class="fa fa-comments"></i> Chats
-          </a>
-        </li>
-
-      {% else %}
-        <li><a href="{% url 'users:login' %}">Login</a></li>
-        <li><a href="{% url 'users:register' %}">Sign Up</a></li>
-      {% endif %}
-      {% if user.is_authenticated %}
-        <li class="notification-dropdown">
-  <a href="#" id="notification-icon" aria-haspopup="true" aria-expanded="false" aria-label="Notifications">
-    <i class="fa fa-bell"></i>
-    <span id="notification-count" class="badge" style="display:none;">0</span>
-  </a>
-  <ul class="dropdown-menu" id="notification-list" role="menu" aria-labelledby="notification-icon">
-    <!-- Notifications injected here -->
-    <li class="clear-notifications" id="clear-notifications-btn">Clear All</li>
-  </ul>
-</li>
-
-      {% endif %}
-
-
-    </ul>
   </div>
 </nav>
 

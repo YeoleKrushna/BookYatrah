@@ -1,0 +1,44 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Search Results - BookYatrah{% endblock %}
+
+{% block content %}
+<div class="search-results-container1">
+  <div class="container">
+    <h2>Search Results for "<span class="highlight1">{{ query }}</span>"</h2>
+
+    {% if results %}
+      <div class="book-grid1">
+        {% for book in results %}
+          <div class="book-card1">
+            <div class="book-cover1">
+              {% if book.image %}
+                <img src="{{ book.image.url }}" alt="{{ book.title }}">
+              {% else %}
+                <img src="{% static 'home/default_book_cover.jpg' %}" alt="No cover">
+              {% endif %}
+            </div>
+            <div class="book-info1">
+              <h3>{{ book.title }}</h3>
+              <p class="author">by {{ book.author }}</p>
+              <p class="author">location: {{ book.location }}</p>
+              <p class="author">
+                Genre:
+                {% for genre in book.genres.all %}
+                  {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                  Not specified
+                {% endfor %}
+              </p>
+              <a href="{% url 'home:book_detail' book.id %}" class="view-button">View</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="no-results">No books found for your search.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
