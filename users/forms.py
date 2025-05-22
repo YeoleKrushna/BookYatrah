@@ -2,13 +2,19 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import Profile, Genre
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={'required': True})
     )
-    
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not email.endswith("@gmail.com"):
+            raise ValidationError("Only Gmail addresses are allowed.")
+        return email
 
     class Meta:
         model = User

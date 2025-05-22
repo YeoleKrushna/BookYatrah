@@ -5,32 +5,201 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'users/style.css' %}">
+<style>
+  .password-toggle {
+    position: relative;
+  }
+  .toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    user-select: none;
+    transition: transform 0.3s ease;
+  }
+
+  .toggle-icon.showing {
+    transform: translateY(-50%) rotate(20deg);
+    color: #4caf50;
+  }
+  .toggle-icon.hiding {
+    transform: translateY(-50%) rotate(0deg);
+    color: #888;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="users-login-container fade-in">
     <h2 class="title">Create an Account</h2>
-    <form method="POST" novalidate>
+    <form method="POST" id="register-form">
         {% csrf_token %}
 
-        {% for field in form %}
+        <!-- Special handling for email field -->
         <div class="form-group">
-            {{ field.label_tag }}
-
-            {{ field }}
-
-            {% if field.help_text %}
-            <small class="help-text">{{ field.help_text }}</small>
-            {% endif %}
-
-            {% for error in field.errors %}
-            <div class="error-message">{{ error }}</div>
-            {% endfor %}
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            <button type="button" id="send-otp-btn" class="btn-otp" style="margin-top:20px">Send OTP</button>
+            <div id="email-status"></div>
         </div>
-        {% endfor %}
 
-        <button type="submit" class="btn">Sign Up</button>
+        <!-- OTP Field (initially hidden) -->
+        <div class="form-group" id="otp-section" style="display: none;">
+            <label for="otp">Enter OTP</label>
+            <input type="text" id="otp" maxlength="6" class="form-control">
+            <button type="button" class="btn-otp" id="verify-otp-btn">Verify</button>
+            <div id="otp-status"></div>
+        </div>
+
+        <!-- The rest of the fields (after OTP verified) -->
+        <div id="full-form" style="display: none;">
+            {% for field in form %}
+                {% if field.name != "email" %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+
+                    {% if field.name == "password1" or field.name == "password2" %}
+                    <div class="password-toggle">
+                        {{ field }}
+                        <span class="toggle-icon hiding" onclick="togglePassword('{{ field.id_for_label }}', this)">👁️</span>
+                    </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                    <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            <div id="password-error" class="error-message" style="text-align:center;"></div>
+            <button type="submit" class="btn" style="display: block; margin: 20px auto 0 auto;">Sign Up</button>
+        </div>
     </form>
+
     <p class="link-text">Already have an account? <a href="{% url 'users:login' %}">Login here</a></p>
 </div>
+
+<script>
+document.getElementById("send-otp-btn").addEventListener("click", function () {
+    const email = document.getElementById("id_email").value;
+    const emailStatus = document.getElementById("email-status");
+
+    if (!email.endsWith("@gmail.com")) {
+        emailStatus.innerText = "Only Gmail addresses are allowed.";
+        emailStatus.style.color = "red";
+        return;
+    }
+
+    document.getElementById("otp-section").style.display = "block";
+
+    fetch("{% url 'users:send_otp' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({ email: email })
+    }).then(res => res.json()).then(data => {
+        emailStatus.innerText = data.message;
+        if (data.status === "exists") {
+            emailStatus.style.color = "red";
+            document.getElementById("otp-section").style.display = "none";
+        } else if (data.status === "ok") {
+            emailStatus.style.color = "green";
+        }
+    }).catch(() => {
+        emailStatus.innerText = "Error sending OTP. Please try again.";
+        emailStatus.style.color = "red";
+        document.getElementById("otp-section").style.display = "none";
+    });
+});
+
+document.getElementById("id_email").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("send-otp-btn").click();
+    }
+});
+
+document.getElementById("otp").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("verify-otp-btn").click();
+    }
+});
+
+document.getElementById("verify-otp-btn").addEventListener("click", function () {
+    const otp = document.getElementById("otp").value;
+    const otpStatus = document.getElementById("otp-status");
+    const emailStatus = document.getElementById("email-status");
+
+    fetch("{% url 'users:verify_otp' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({ otp: otp })
+    }).then(res => res.json()).then(data => {
+        otpStatus.innerText = data.message;
+        if (data.status === "verified") {
+            document.getElementById("otp-section").style.display = "none";
+            document.getElementById("full-form").style.display = "block";
+            document.getElementById("id_email").readOnly = true;
+            document.getElementById("send-otp-btn").style.display = "none";
+            emailStatus.innerHTML = "<span style='color: green;'>Email Verified ✅</span>";
+        }
+    });
+});
+
+// 👇 Prevent space in username
+const usernameInput = document.getElementById("id_username");
+if (usernameInput) {
+    usernameInput.addEventListener("keydown", function (e) {
+        if (e.key === " ") {
+            e.preventDefault();
+        }
+    });
+}
+
+// 👁️ Toggle password visibility with animation
+function togglePassword(fieldId, icon) {
+    const input = document.getElementById(fieldId);
+    if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "🙈";  // Change icon to "hide" emoji
+        icon.classList.remove("hiding");
+        icon.classList.add("showing");
+    } else {
+        input.type = "password";
+        icon.textContent = "👁️";  // Change icon back to "show" emoji
+        icon.classList.remove("showing");
+        icon.classList.add("hiding");
+    }
+}
+
+// ✅ Passwords must match
+document.getElementById("register-form").addEventListener("submit", function (e) {
+    const pw1 = document.getElementById("id_password1");
+    const pw2 = document.getElementById("id_password2");
+    const errorDiv = document.getElementById("password-error");
+
+    if (pw1 && pw2 && pw1.value !== pw2.value) {
+        e.preventDefault();
+        errorDiv.innerText = "Passwords do not match.";
+        return;
+    }
+
+    errorDiv.innerText = "";
+});
+</script>
+
 {% endblock %}

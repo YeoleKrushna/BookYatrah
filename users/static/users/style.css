@@ -670,3 +670,29 @@ hr {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
 }
+
+.btn-otp {
+    background-color: #369a52;
+    color: white;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-otp:hover {
+    background-color: #2e7d43;
+}
+
+.btn-otp:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+    color: #f1f1f1;
+}
+

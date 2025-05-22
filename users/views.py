@@ -176,3 +176,55 @@ def user_profile(request, user_id):
         'books': books,
     }
     return render(request, 'users/public_profile.html', context)
+
+
+import random
+import smtplib
+from django.core.mail import send_mail
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import json
+
+@csrf_exempt
+def send_otp(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        email = data.get("email")
+        if not email.endswith("@gmail.com"):
+            return JsonResponse({"status": "fail", "message": "Only Gmail addresses allowed."})
+        
+         # ✅ Check if email already exists
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({"status": "exists", "message": "This email is already registered."})
+
+
+        otp = random.randint(100000, 999999)
+        request.session['otp'] = str(otp)
+        request.session['email_to_verify'] = email
+
+        # Send OTP via email
+        send_mail(
+            'Your BookYatrah OTP',
+            f'Your OTP is: {otp}',
+            'noreply@bookyatrah.com',
+            [email],
+            fail_silently=False,
+        )
+
+        return JsonResponse({"status": "ok", "message": "OTP sent to your email."})
+
+@csrf_exempt
+def verify_otp(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user_otp = data.get("otp")
+        actual_otp = request.session.get('otp')
+
+        if user_otp == actual_otp:
+            request.session['otp_verified'] = True
+            return JsonResponse({"status": "verified", "message": "Email verified ✅"})
+        else:
+            return JsonResponse({"status": "fail", "message": "Incorrect OTP."})
+
+

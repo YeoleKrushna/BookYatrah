@@ -14,6 +14,10 @@ urlpatterns = [
     path('book/<int:pk>/edit/', views.edit_book_view, name='edit_book'),
     path('book/<int:pk>/delete/', views.delete_book_view, name='delete_book'),
     path('user/<int:user_id>/', views.user_profile, name='user_profile'),
+    path('send-otp/', views.send_otp, name='send_otp'),
+    path('verify-otp/', views.verify_otp, name='verify_otp'),
+
+    
 
 
 ]
