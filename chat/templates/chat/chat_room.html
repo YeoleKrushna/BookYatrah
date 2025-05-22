@@ -29,10 +29,20 @@
 
   <form id="chat-form" method="POST" action="{% url 'chat:chat_room' exchange.id %}">
     {% csrf_token %}
-    <input type="text" name="message" id="message-input" placeholder="Type a message" autocomplete="off" required />
+    <input type="text" name="message" id="message-input" placeholder="Type a message" maxlength="250" autocomplete="off" required />
+    <small id="char-count" style="margin-top: 12px; font-size: 0.75rem; color: #666;">0 / 250</small>
     <button type="submit">Send</button>
   </form>
 </div>
+
+<script>
+  const input = document.getElementById('message-input');
+  const charCount = document.getElementById('char-count');
+
+  input.addEventListener('input', () => {
+    charCount.textContent = `${input.value.length} / 100`;
+  });
+</script>
 
 
 <script>
@@ -44,14 +54,15 @@
 </script>
 
 <style>
-  .chat-room-container {
-    max-width: 600px;
-    margin: 2rem auto;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    background: #fff;
-  }
+.chat-room-container {
+  max-width: 600px;
+  margin: 6rem auto 2rem auto;  /* 👈 Push down by 6rem from top */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fff;
+}
+
   .chat-messages {
     max-height: 400px;
     overflow-y: auto;
@@ -80,11 +91,13 @@
     padding: 0.5rem 1rem;
     margin-left: 0.5rem;
     position: relative;
+    word-break: break-word;
   }
   .message.sent .message-content {
     background: #dcf8c6;
     margin-left: 0;
     margin-right: 0.5rem;
+    word-break: break-word;
   }
   .timestamp {
     display: block;

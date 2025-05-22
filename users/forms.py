@@ -8,6 +8,7 @@ class UserRegisterForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(attrs={'required': True})
     )
+    
 
     class Meta:
         model = User

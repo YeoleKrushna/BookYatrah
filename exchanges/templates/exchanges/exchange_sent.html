@@ -12,6 +12,6 @@
     <h2 class="title">Exchange Request Sent!</h2>
     <p>Your request for "<strong>{{ book.title }}</strong>" has been sent successfully.</p>
     <p>The book owner will be notified and may respond shortly.</p>
-    <a href="{% url 'home:index' %}" class="btn-primary">← Back to Browse</a>
+    <a href="{% url 'users:dashboard' %}#exchange-requests-section" class="btn-primary">← Check Ongoing Exchanges</a>
 </div>
 {% endblock %}

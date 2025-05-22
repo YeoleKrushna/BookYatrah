@@ -76,7 +76,7 @@ def accept_request(request, request_id):
         exchange_request.status = 'accepted'
         exchange_request.save()
         messages.success(request, f"Exchange request accepted.")
-
+    
         # Notification
         Notification.objects.create(
             user=exchange_request.requester,
@@ -112,7 +112,7 @@ def decline_request(request, request_id):
             sender=request.user,
             notification_type='exchange_declined',
             message=f"{request.user.username} declined your exchange request for '{exchange_request.requested_book.title}'.",
-            url=reverse('users:dashboard')
+            url=reverse('users:dashboard') + '#exchange-requests-section'
         )
 
         return redirect('users:dashboard')
