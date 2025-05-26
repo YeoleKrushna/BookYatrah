@@ -12,10 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-bp=n=6)^78(ob*nuxok%&d8ouhyx(ghj#i8597_06v%#8oyc7k'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True  # Change to False in production
 
 ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
-
 
 
 # Application definition
@@ -48,6 +47,7 @@ CHANNEL_LAYERS = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <-- Added WhiteNoise middleware here
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,7 +61,7 @@ ROOT_URLCONF = 'BookYatrah.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],  # You can add custom template dirs here if needed
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -108,11 +108,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
-# settings.py
+
 TIME_ZONE = 'Asia/Kolkata'
 
 LANGUAGE_CODE = 'en-us'
-
 
 USE_I18N = True
 
@@ -122,30 +121,51 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+STATIC_URL = '/static/'
+
+# For local development - where you put your static files
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+# For production - collectstatic copies all static files here
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise static files storage for compression and caching
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+# Media files (user uploaded content)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+# Redirects after login/logout
 LOGIN_REDIRECT_URL = 'profile'
 LOGOUT_REDIRECT_URL = 'login'
 
 
-# settings.py
-
+# Email settings for Gmail SMTP (using app password)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'infymediaaa@gmail.com'           # <-- your full Gmail
-EMAIL_HOST_PASSWORD = 'nacc fosh lglm blwo'         # <-- the 16-char App Password
+EMAIL_HOST_USER = 'infymediaaa@gmail.com'           # Your Gmail address
+EMAIL_HOST_PASSWORD = 'nacc fosh lglm blwo'         # Your Gmail App Password
+
+
+# Optional security improvements for production
+# Uncomment and set when deploying
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_HSTS_SECONDS = 3600
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
