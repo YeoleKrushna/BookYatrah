@@ -10,9 +10,7 @@ urlpatterns = [
     path('exchanges/', include('exchanges.urls')),
     path('chat/', include('chat.urls', namespace='chat')),
     path('notifications/', include('notifications.urls')),
-
-
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Always serve media files via Django (only recommended in development or when you want Django to serve media)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
