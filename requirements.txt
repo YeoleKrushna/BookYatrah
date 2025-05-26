@@ -3,3 +3,4 @@ gunicorn
 whitenoise
 pillow
 channels
+python-decouple
